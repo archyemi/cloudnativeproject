@@ -1,0 +1,9 @@
+apiVersion: v1
+name: techtrends 
+description: A techtrends application
+keywords:
+- techtrends 
+version: 1.0.0
+maintainers:
+- name: aalatishe
+  email: aalatishe@gmail.com
