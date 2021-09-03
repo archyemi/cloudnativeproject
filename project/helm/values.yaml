@@ -8,7 +8,8 @@ service:
   type: ClusterIP
 
 image:
-  repository: aalatishe86/techtrends 
+  repository: aalatishe86/techtrends
+  pullPolicy: IfNotPresent
   tag: latest
 
 replicaCount: 1
@@ -16,6 +17,7 @@ replicaCount: 1
 ports:
   containerPort: 3111
   protocol: TCP
+
 resources:
   requests:
     cpu: 250m
@@ -27,6 +29,7 @@ resources:
 livenessProbe:
   path: /healthz
   port: 3111
+  
 readinessProbe:
   path: /healthz
   port: 3111

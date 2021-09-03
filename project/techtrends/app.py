@@ -4,19 +4,34 @@ import logging
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
 from werkzeug.exceptions import abort
 import sys
+import os
 
 number = 0
 
-stdout_h = logging.StreamHandler(sys.stdout)
-stdout_h.setLevel(logging.DEBUG)
 
-stderr_h = logging.StreamHandler(sys.stderr)
-stderr_h.setLevel(logging.ERROR)
-
-handlers = [stderr_h, stdout_h]
 # format output
 format_output = logging.Formatter('%(asctime)s: %(name)s: %(levelname)s: %(message)s')
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s: %(name)s: %(levelname)s: %(message)s', handlers=handlers)
+
+def initialize_logger():
+    log_level = os.getenv("LOGLEVEL", "DEBUG").upper()
+    log_level = (
+        getattr(logging, log_level)
+        if log_level in ["CRITICAL", "DEBUG", "ERROR", "INFO", "WARNING",]
+        else logging.DEBUG
+    )
+
+    # set logger to handle STDOUT and STDERR
+    stdout_h = logging.StreamHandler(sys.stdout)
+    stdout_h.setLevel(log_level)
+
+    stderr_h = logging.StreamHandler(sys.stderr)
+    stderr_h.setLevel(logging.ERROR)
+
+    handlers = [stderr_h, stdout_h]
+    logging.basicConfig(
+        format='%(levelname)s:%(name)s:%(asctime)s, %(message)s',
+        handlers=handlers
+    )
 
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
@@ -53,7 +68,7 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
-      app.logger.info('A non-existing article is accessed')
+      app.logger.error('Trying to access a non-existing article')
       return render_template('404.html'), 404
     else:
       app.logger.info('%s article is retrieved', post)
@@ -115,5 +130,5 @@ def metrics():
 
 # start the application on port 3111
 if __name__ == "__main__":
-    
+    initialize_logger()
     app.run(host='0.0.0.0', port='3111')
